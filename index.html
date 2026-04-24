@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ingeniería Aeroespacial - Turbofán</title>
+    <title>Ingeniería Aeroespacial - Turboprop Avanzado</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800&display=swap');
         
         :root {
-            --accent: #38bdf8;
+            --accent: #10b981;
             --bg: #020617;
             --panel: #0f172a;
         }
@@ -24,24 +24,20 @@
 
         .mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Contenedor Principal */
         .main-layout {
             display: grid;
-            grid-template-columns: 1fr 380px;
+            grid-template-columns: 1fr 420px;
             gap: 2rem;
             min-height: 100vh;
             padding: 2rem;
         }
 
-        @media (max-width: 1024px) {
-            .main-layout {
-                grid-template-columns: 1fr;
-            }
+        @media (max-width: 1100px) {
+            .main-layout { grid-template-columns: 1fr; }
         }
 
-        /* Canvas del Motor */
         .engine-display {
-            background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
+            background: radial-gradient(circle at center, #111827 0%, #020617 100%);
             border-radius: 2rem;
             border: 1px solid #1e293b;
             position: relative;
@@ -52,41 +48,42 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        /* Animaciones de Desglose */
         .part {
             transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
             cursor: pointer;
         }
 
-        .exploded .part-fan { transform: translateX(-180px); }
-        .exploded .part-comp { transform: translateX(-60px); }
-        .exploded .part-comb { transform: translateX(40px); }
-        .exploded .part-turb { transform: translateX(140px); }
-        .exploded .part-nozzle { transform: translateX(240px); }
+        /* Desglose visual */
+        .exploded .part-prop { transform: translateX(-220px) scale(1.05); }
+        .exploded .part-gear { transform: translateX(-120px); }
+        .exploded .part-comp { transform: translateX(20px); }
+        .exploded .part-comb { transform: translateX(130px); }
+        .exploded .part-turb { transform: translateX(240px); }
 
-        .part:hover {
-            filter: drop-shadow(0 0 15px var(--accent));
-        }
-
+        .part:hover { filter: drop-shadow(0 0 15px var(--accent)); }
         .selected {
             filter: drop-shadow(0 0 20px var(--accent)) !important;
             stroke-width: 3px !important;
             stroke: white !important;
         }
 
-        /* Panel Lateral Fijo */
         .side-panel {
             background: var(--panel);
             border-radius: 2rem;
             border: 1px solid #1e293b;
-            padding: 2.5rem;
+            padding: 2rem;
             position: sticky;
             top: 2rem;
             height: calc(100vh - 4rem);
             display: flex;
             flex-direction: column;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow-y: auto;
         }
+
+        /* Scrollbar styling */
+        .side-panel::-webkit-scrollbar { width: 6px; }
+        .side-panel::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
 
         .stat-card {
             background: #020617;
@@ -99,150 +96,161 @@
 <body>
 
     <div class="main-layout">
-        
-        <!-- Área Visual -->
         <main class="space-y-6">
             <header class="flex justify-between items-end mb-8">
                 <div>
-                    <h1 class="text-6xl font-black tracking-tighter text-white">TURBO<span class="text-sky-500">FAN</span></h1>
-                    <p class="mono text-sky-500/50 text-sm tracking-widest mt-2">ANÁLISIS DE COMPONENTES AERONÁUTICOS</p>
+                    <h1 class="text-6xl font-extrabold tracking-tighter text-white uppercase leading-none">TURBO<span class="text-emerald-500">PROP</span></h1>
+                    <p class="mono text-emerald-500/50 text-sm tracking-widest mt-2">CONFIGURACIÓN TÉCNICA DE ALTO RENDIMIENTO</p>
                 </div>
-                <button onclick="toggleExplosion()" id="btn-explode" class="bg-sky-600 hover:bg-sky-500 text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-xl shadow-sky-900/20 active:scale-95">
+                <button onclick="toggleExplosion()" id="btn-explode" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-xl shadow-emerald-900/20 active:scale-95">
                     Descomponer Motor
                 </button>
             </header>
 
-            <div class="engine-display h-[600px]">
+            <div class="engine-display h-[550px]">
+                <!-- El esquema visual del motor -->
                 <svg id="engine-svg" viewBox="0 0 900 400" class="w-full h-auto p-10">
-                    <!-- Eje Central -->
                     <line x1="50" y1="200" x2="850" y2="200" stroke="#1e293b" stroke-width="2" stroke-dasharray="10,10" />
 
-                    <!-- 01. FAN (Ventilador) -->
-                    <g class="part part-fan" onclick="showDetail('fan', this)">
-                        <path d="M100,60 L150,60 L150,340 L100,340 Q70,200 100,60" fill="#334155" stroke="#38bdf8" stroke-width="2"/>
-                        <circle cx="125" cy="200" r="40" fill="#0f172a" stroke="#38bdf8"/>
-                        <path d="M125,160 L125,240 M110,170 L140,230" stroke="#38bdf8" opacity="0.5"/>
-                        <text x="90" y="370" fill="#38bdf8" class="mono text-[10px] font-bold">01. VENTILADOR</text>
+                    <!-- 01. PROPELLER -->
+                    <g class="part part-prop" onclick="showDetail('prop', this)">
+                        <rect x="60" y="50" width="25" height="300" rx="12" fill="#334155" stroke="#10b981" stroke-width="2"/>
+                        <circle cx="72.5" cy="200" r="18" fill="#0f172a" stroke="#10b981"/>
+                        <text x="35" y="380" fill="#10b981" class="mono text-[10px] font-bold uppercase">01. Hélice</text>
                     </g>
 
-                    <!-- 02. COMPRESSOR (Compresor) -->
+                    <!-- 02. GEARBOX -->
+                    <g class="part part-gear" onclick="showDetail('gear', this)">
+                        <rect x="135" y="155" width="90" height="90" rx="10" fill="#475569" stroke="#10b981" stroke-width="2"/>
+                        <circle cx="180" cy="200" r="22" fill="none" stroke="#10b981" stroke-dasharray="4,2"/>
+                        <text x="140" y="380" fill="#10b981" class="mono text-[10px] font-bold uppercase">02. Reductora</text>
+                    </g>
+
+                    <!-- 03. COMPRESSOR -->
                     <g class="part part-comp" onclick="showDetail('comp', this)">
-                        <path d="M220,130 L350,150 L350,250 L220,270 Z" fill="#475569" stroke="#38bdf8" stroke-width="2"/>
-                        <line x1="250" y1="135" x2="250" y2="265" stroke="#1e293b"/>
-                        <line x1="280" y1="140" x2="280" y2="260" stroke="#1e293b"/>
-                        <line x1="310" y1="145" x2="310" y2="255" stroke="#1e293b"/>
-                        <text x="230" y="370" fill="#38bdf8" class="mono text-[10px] font-bold">02. COMPRESOR</text>
+                        <path d="M270,140 L390,155 L390,245 L270,260 Z" fill="#334155" stroke="#10b981" stroke-width="2"/>
+                        <text x="280" y="380" fill="#10b981" class="mono text-[10px] font-bold uppercase">03. Compresor</text>
                     </g>
 
-                    <!-- 03. COMBUSTOR (Cámara de Combustión) -->
+                    <!-- 04. COMBUSTOR -->
                     <g class="part part-comb" onclick="showDetail('comb', this)">
-                        <path d="M410,150 L530,150 L550,140 L570,150 L570,250 L550,260 L530,250 L410,250 Z" fill="#1e293b" stroke="#f43f5e" stroke-width="2"/>
-                        <path d="M430,170 Q480,200 530,170" stroke="#f43f5e" stroke-width="1" opacity="0.4"/>
-                        <text x="425" y="370" fill="#f43f5e" class="mono text-[10px] font-bold">03. COMBUSTIÓN</text>
+                        <rect x="450" y="155" width="130" height="90" fill="#1e293b" stroke="#f43f5e" stroke-width="2"/>
+                        <text x="460" y="380" fill="#f43f5e" class="mono text-[10px] font-bold uppercase">04. Combustión</text>
                     </g>
 
-                    <!-- 04. TURBINE (Turbinas) -->
+                    <!-- 05. TURBINE -->
                     <g class="part part-turb" onclick="showDetail('turb', this)">
-                        <path d="M630,140 L730,120 L730,280 L630,260 Z" fill="#475569" stroke="#38bdf8" stroke-width="2"/>
-                        <rect x="660" y="130" width="10" height="140" fill="#1e293b" stroke="#38bdf8"/>
-                        <text x="640" y="370" fill="#38bdf8" class="mono text-[10px] font-bold">04. TURBINAS</text>
-                    </g>
-
-                    <!-- 05. NOZZLE (Escape) -->
-                    <g class="part part-nozzle" onclick="showDetail('nozzle', this)">
-                        <path d="M790,140 L880,170 L880,230 L790,260 Z" fill="#0f172a" stroke="#94a3b8" stroke-width="2"/>
-                        <text x="800" y="370" fill="#94a3b8" class="mono text-[10px] font-bold">05. ESCAPE</text>
+                        <path d="M630,150 L770,130 L770,270 L630,250 Z" fill="#475569" stroke="#10b981" stroke-width="2"/>
+                        <text x="670" y="380" fill="#10b981" class="mono text-[10px] font-bold uppercase">05. Turbina</text>
                     </g>
                 </svg>
             </div>
 
-            <!-- Footer Informativo -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
-                    <h4 class="text-sky-400 font-bold uppercase mono text-xs mb-2">Ciclo de Trabajo</h4>
-                    <p class="text-sm text-slate-400">El motor opera bajo el Ciclo Brayton: Admisión, Compresión, Combustión y Escape. El aire de derivación proporciona el 80% del empuje.</p>
+                <div class="bg-slate-900/50 p-6 rounded-3xl border border-slate-800 backdrop-blur-sm">
+                    <h4 class="text-emerald-400 font-bold uppercase mono text-xs mb-3 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                        Eficiencia de Propulsión
+                    </h4>
+                    <p class="text-sm text-slate-400 leading-relaxed italic">
+                        "El turboprop es el motor ideal para operaciones regionales; ofrece un ahorro de combustible de hasta el 40% frente a jets de tamaño similar en distancias cortas."
+                    </p>
                 </div>
-                <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 flex items-center gap-4">
-                    <div class="text-4xl font-black text-sky-500">HBR</div>
-                    <p class="text-xs text-slate-500 uppercase mono">High Bypass Ratio: Característica clave de los motores modernos para máxima eficiencia y bajo ruido.</p>
+                <div class="bg-slate-900/50 p-6 rounded-3xl border border-slate-800 flex items-center justify-between">
+                    <div class="space-y-1">
+                        <div class="text-3xl font-black text-white">100%</div>
+                        <div class="text-[10px] text-slate-500 uppercase mono">Precisión Mecánica</div>
+                    </div>
+                    <div class="h-12 w-[1px] bg-slate-800"></div>
+                    <div class="space-y-1 text-right">
+                        <div class="text-3xl font-black text-emerald-500">SHP</div>
+                        <div class="text-[10px] text-slate-500 uppercase mono">Unidad de Potencia</div>
+                    </div>
                 </div>
             </div>
         </main>
 
-        <!-- Panel Lateral -->
-        <aside class="side-panel">
+        <aside class="side-panel custom-shadow">
             <div id="panel-idle">
-                <div class="w-16 h-16 bg-sky-500/10 rounded-2xl flex items-center justify-center text-sky-500 mb-8">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0012 18.75c-.991 0-1.932-.399-2.623-1.103l-.548-.547z" /></svg>
+                <div class="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 mb-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
-                <h2 class="text-3xl font-black text-white mb-6 uppercase tracking-tight leading-none">Panel de Análisis</h2>
-                <p class="text-slate-400 leading-relaxed mb-8">Selecciona cualquier componente del diagrama técnico para desglosar sus especificaciones de ingeniería.</p>
-                <div class="space-y-4">
-                    <div class="flex items-center gap-3 text-xs mono text-slate-500"><div class="w-2 h-2 rounded-full bg-sky-500"></div> Gráficos Vectoriales SVG</div>
-                    <div class="flex items-center gap-3 text-xs mono text-slate-500"><div class="w-2 h-2 rounded-full bg-sky-500"></div> Renderizado Instantáneo</div>
+                <h2 class="text-3xl font-extrabold text-white mb-6 uppercase tracking-tight leading-tight">Especificaciones de Diseño</h2>
+                <p class="text-slate-400 leading-relaxed mb-6">Interactúa con el esquema del motor para visualizar datos avanzados sobre cada módulo operativo.</p>
+                <div class="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-xs text-emerald-200/60 leading-relaxed">
+                    <strong>Sugerencia:</strong> Pulsa el botón superior para observar el espaciado crítico entre los componentes internos y el flujo de aire.
                 </div>
             </div>
 
-            <div id="panel-content" class="hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div class="flex justify-between items-center mb-8">
-                    <span id="part-id" class="bg-sky-500 text-slate-900 font-bold px-4 py-1 rounded-lg mono text-sm tracking-tighter">01</span>
-                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mono">Sistema Crítico</span>
+            <div id="panel-content" class="hidden animate-in fade-in slide-in-from-right-4 duration-500">
+                <div class="flex justify-between items-center mb-6">
+                    <span id="part-id" class="bg-emerald-500 text-slate-900 font-black px-4 py-1 rounded-lg mono text-sm tracking-tighter">00</span>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mono">Ficha Técnica</span>
                 </div>
-                <h2 id="part-title" class="text-4xl font-black text-white mb-6 uppercase tracking-tighter leading-none">Cargando...</h2>
-                <p id="part-desc" class="text-slate-400 text-sm leading-relaxed mb-10"></p>
+                <h2 id="part-title" class="text-4xl font-extrabold text-white mb-4 uppercase tracking-tighter">---</h2>
+                <p id="part-desc" class="text-slate-400 text-sm leading-relaxed mb-8"></p>
                 
-                <div class="grid grid-cols-1 gap-4 mb-10">
+                <div class="space-y-4 mb-10">
                     <div class="stat-card">
                         <span class="block text-[10px] text-slate-500 uppercase mono mb-1 tracking-widest font-bold">Métrica Operativa</span>
-                        <span id="part-stat" class="text-xl font-bold text-sky-400 tracking-tight">--</span>
+                        <span id="part-stat" class="text-xl font-bold text-emerald-400 tracking-tight">--</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="block text-[10px] text-slate-500 uppercase mono mb-1 tracking-widest font-bold">Estado Dinámico</span>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span class="text-sm font-semibold">Óptimo / Sin Desgaste</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="mt-auto bg-sky-500/5 p-6 rounded-2xl border border-sky-500/20">
-                    <h5 class="text-[10px] font-bold text-sky-400 uppercase mb-2 mono tracking-widest">Dato Técnico</h5>
-                    <p id="part-fact" class="text-xs text-sky-200/60 leading-relaxed italic"></p>
+                <div class="bg-emerald-500/5 p-6 rounded-3xl border border-emerald-500/20 relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 opacity-10">
+                        <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>
+                    </div>
+                    <h5 class="text-[10px] font-bold text-emerald-400 uppercase mb-3 mono tracking-widest">Información de Ingeniería</h5>
+                    <p id="part-fact" class="text-xs text-emerald-100/70 leading-relaxed font-medium italic"></p>
                 </div>
             </div>
         </aside>
-
     </div>
 
     <script>
         const details = {
-            fan: {
+            prop: {
                 id: '01',
-                title: 'Ventilador',
-                desc: 'Es la hélice principal del motor. Su gran diámetro permite mover grandes volúmenes de aire. Una parte entra al núcleo y la mayoría fluye por fuera (bypass) para generar empuje eficiente.',
-                stat: 'Bypass: 12:1',
-                fact: 'A velocidad de crucero, el ventilador frontal genera cerca del 85% del empuje total de la aeronave.'
+                title: 'Conjunto de Hélice',
+                desc: 'Componente aerodinámico primario que convierte la potencia del eje en tracción útil mediante el desplazamiento de una masa de aire exterior. Las aspas modernas emplean un diseño de cimitarra para reducir ondas de choque en las puntas, permitiendo velocidades de crucero mayores sin pérdida de eficiencia acústica.',
+                stat: 'Rendimiento: 88% a 350 KTAS',
+                fact: 'Equipadas con sistemas de paso variable electrónico que permiten mantener las RPM constantes (Constant Speed) mientras se ajusta la carga aerodinámica según la fase de vuelo (despegue, crucero o frenado aerodinámico).'
+            },
+            gear: {
+                id: '02',
+                title: 'Caja de Reducción',
+                desc: 'Un sistema de engranajes planetarios de alta precisión diseñado para reducir las RPM de la turbina (que pueden superar las 30,000) a un rango operativo seguro para la hélice (típicamente 1,200 - 2,000 RPM). Es el nexo crítico donde se multiplica el torque motor de manera masiva.',
+                stat: 'Ratio de Reducción: 14.5 : 1',
+                fact: 'Debido a las altísimas fuerzas de fricción, este componente cuenta con un sistema de lubricación dedicado e independiente que monitorea partículas metálicas en tiempo real para predecir fallos mecánicos.'
             },
             comp: {
-                id: '02',
-                title: 'Compresor',
-                desc: 'Serie de aspas que comprimen el aire a presiones altísimas. Al reducir el volumen del aire, se aumenta su temperatura y densidad para optimizar la combustión.',
-                stat: 'Presión: 500 PSI',
-                fact: 'Las aspas del compresor están diseñadas con perfiles aerodinámicos similares a las alas de un avión.'
+                id: '03',
+                title: 'Sección de Compresión',
+                desc: 'Módulo encargado de elevar la densidad del aire atmosférico antes de su ingreso a la cámara de combustión. Suele combinar varias etapas de compresores axiales para volumen y una etapa centrífuga final que garantiza una presión estable incluso en condiciones de engelamiento o turbulencia severa.',
+                stat: 'Presión Final: 18 Atmósferas',
+                fact: 'El aire "sangrado" de las últimas etapas del compresor no solo se usa para el motor, sino que se redirige para presurizar la cabina y calentar los bordes de ataque de las alas para evitar el hielo.'
             },
             comb: {
-                id: '03',
-                title: 'Combustión',
-                desc: 'Zona donde se inyecta combustible al aire comprimido y se quema. La expansión térmica resultante acelera los gases hacia la parte trasera del motor.',
-                stat: 'Temp: 2,100°C',
-                fact: 'La temperatura de combustión es tan alta que podría derretir el motor si no fuera por los sistemas de refrigeración por aire.'
+                id: '04',
+                title: 'Cámara de Combustión',
+                desc: 'Espacio de alta energía donde el combustible atomizado se mezcla con el aire comprimido en una relación estequiométrica precisa. El diseño de flujo inverso (Reverse Flow) permite que el motor sea más compacto, facilitando el mantenimiento y reduciendo el peso estructural de la góndola.',
+                stat: 'Temp. Gas: 1,350°C - 1,500°C',
+                fact: 'Para proteger las paredes de la cámara, se inyecta una "película de aire frío" que actúa como escudo térmico, evitando que los metales superen su punto de fusión durante el funcionamiento continuo.'
             },
             turb: {
-                id: '04',
-                title: 'Turbinas',
-                desc: 'Extraen la energía de los gases calientes para hacer girar el eje central que conecta con el compresor y el ventilador frontal.',
-                stat: 'RPM: 15,000',
-                fact: 'Un solo álabe de turbina de alta presión extrae la misma potencia que el motor de un automóvil deportivo.'
-            },
-            nozzle: {
                 id: '05',
-                title: 'Tobera',
-                desc: 'Sección final que acelera los gases de escape. La diferencia de velocidad entre la entrada y salida crea la fuerza de reacción necesaria para el vuelo.',
-                stat: 'Mach: 0.85',
-                fact: 'El diseño dentado (chevrones) en el borde de algunas toberas ayuda a reducir drásticamente el ruido del motor.'
+                title: 'Turbina de Potencia',
+                desc: 'Conjunto de discos y álabes que extraen la energía térmica y cinética de los gases en expansión para mover el eje propulsor. En motores de turbina libre, la sección de potencia está desacoplada mecánicamente del núcleo generador de gas, lo que reduce las vibraciones y facilita el arranque.',
+                stat: 'Potencia Específica: 2,800 SHP',
+                fact: 'Los álabes de la turbina están fabricados con monocristales de superaleaciones basadas en níquel, capaces de mantener su integridad estructural bajo fuerzas centrífugas extremas y temperaturas superiores a los 1,000°C.'
             }
         };
 
@@ -256,18 +264,19 @@
             if(isExploded) {
                 svg.classList.add('exploded');
                 btn.innerText = "Ensamblar Motor";
-                btn.classList.replace('bg-sky-600', 'bg-slate-700');
+                btn.classList.replace('bg-emerald-600', 'bg-slate-700');
             } else {
                 svg.classList.remove('exploded');
                 btn.innerText = "Descomponer Motor";
-                btn.classList.replace('bg-slate-700', 'bg-sky-600');
+                btn.classList.replace('bg-slate-700', 'bg-emerald-600');
             }
         }
 
         function showDetail(key, el) {
             const data = details[key];
-            const idle = document.getElementById('panel-idle');
+            document.getElementById('panel-idle').classList.add('hidden');
             const content = document.getElementById('panel-content');
+            content.classList.remove('hidden');
 
             document.querySelectorAll('.part').forEach(p => p.classList.remove('selected'));
             el.classList.add('selected');
@@ -277,9 +286,9 @@
             document.getElementById('part-desc').innerText = data.desc;
             document.getElementById('part-stat').innerText = data.stat;
             document.getElementById('part-fact').innerText = data.fact;
-
-            idle.classList.add('hidden');
-            content.classList.remove('hidden');
+            
+            // Scroll al inicio del panel en móvil
+            document.querySelector('.side-panel').scrollTop = 0;
         }
     </script>
 </body>
