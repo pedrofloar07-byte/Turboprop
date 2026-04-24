@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motor Turbofán - Ingeniería Aeroespacial</title>
+    <!-- Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;700;900&display=swap');
+        
+        :root {
+            --accent: #38bdf8;
+            --bg: #020617;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: #f1f5f9;
+            margin: 0;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Contenedor principal del motor */
+        .engine-canvas {
+            height: 400px;
+            background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
+            border-radius: 1.5rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #1e293b;
+        }
+
+        .engine-part {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            stroke-width: 2;
+        }
+
+        /* Animación de Desglose */
+        .exploded .part-1 { transform: translateX(-140px); }
+        .exploded .part-2 { transform: translateX(-40px); }
+        .exploded .part-3 { transform: translateX(40px); }
+        .exploded .part-4 { transform: translateX(120px); }
+        .exploded .part-5 { transform: translateX(200px); }
+
+        .active-part {
+            filter: drop-shadow(0 0 12px var(--accent));
+            stroke-width: 3;
+            stroke: white !important;
+        }
+
+        .custom-shadow {
+            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Encabezado -->
+        <header class="mb-10 flex flex-col md:flex-row justify-between items-center border-b border-slate-800 pb-6">
+            <div>
+                <h1 class="text-5xl font-black tracking-tighter text-white uppercase">Turbofán <span class="text-sky-500 text-3xl font-light">Engine</span></h1>
+                <p class="mono text-sky-500/60 text-xs tracking-widest mt-2">VISTA TÉCNICA INTERACTIVA PARA DESPLIEGUE WEB</p>
+            </div>
+            <button onclick="toggleExplosion()" id="main-btn" class="mt-4 md:mt-0 bg-sky-600 hover:bg-sky-500 text-white px-8 py-3 rounded-full font-bold transition-all shadow-lg active:scale-95">
+                Descomponer Motor
+            </button>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Columna Izquierda: Visualización -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- El Motor SVG -->
+                <div class="engine-canvas custom-shadow">
+                    <svg id="engine-svg" viewBox="0 0 900 400" class="w-full h-full p-4">
+                        <line x1="50" y1="200" x2="850" y2="200" stroke="#1e293b" stroke-dasharray="8,8" />
+                        
+                        <!-- Fan -->
+                        <g class="engine-part part-1" onclick="updateDetail('fan', this)">
+                            <path d="M120,80 L160,80 L160,320 L120,320 Q100,200 120,80" fill="#1e293b" stroke="#38bdf8"/>
+                            <circle cx="140" cy="200" r="30" fill="#334155" stroke="#38bdf8"/>
+                        </g>
+                        <!-- Compressor -->
+                        <g class="engine-part part-2" onclick="updateDetail('compressor', this)">
+                            <path d="M220,130 L320,150 L320,250 L220,270 Z" fill="#334155" stroke="#38bdf8"/>
+                        </g>
+                        <!-- Combustor -->
+                        <g class="engine-part part-3" onclick="updateDetail('combustor', this)">
+                            <rect x="380" y="150" width="140" height="100" fill="#1e293b" stroke="#f43f5e"/>
+                        </g>
+                        <!-- Turbine -->
+                        <g class="engine-part part-4" onclick="updateDetail('turbine', this)">
+                            <path d="M580,140 L680,120 L680,280 L580,260 Z" fill="#334155" stroke="#38bdf8"/>
+                        </g>
+                        <!-- Nozzle -->
+                        <g class="engine-part part-5" onclick="updateDetail('nozzle', this)">
+                            <path d="M740,150 L840,170 L840,230 L740,250 Z" fill="#0f172a" stroke="#94a3b8"/>
+                        </g>
+
+                        <!-- Etiquetas -->
+                        <g class="mono text-[10px] fill-slate-500 font-bold" pointer-events="none">
+                            <text x="125" y="350">FAN</text>
+                            <text x="230" y="350">COMPRESSOR</text>
+                            <text x="410" y="350">COMBUSTOR</text>
+                            <text x="605" y="350">TURBINE</text>
+                            <text x="770" y="350">EXHAUST</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- Imagen Realista Inferior -->
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden flex flex-col md:flex-row">
+                    <div class="md:w-1/2 p-0 bg-black flex items-center justify-center min-h-[200px]">
+                        <!-- Imagen representativa -->
+                        <div class="text-center">
+                            <div class="text-sky-500 mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                            </div>
+                            <span class="mono text-[10px] uppercase text-slate-500">Esquema Motor GEnx / Trent</span>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2 p-8 flex flex-col justify-center">
+                        <h3 class="text-xl font-bold mb-2">Eje de Doble Flujo</h3>
+                        <p class="text-sm text-slate-400 leading-relaxed">
+                            Los motores turbofán modernos utilizan dos o tres ejes concéntricos para permitir que el ventilador y las turbinas giren a sus velocidades óptimas independientes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Información (No estorba al motor) -->
+            <div class="lg:col-span-1">
+                <div id="info-card" class="bg-slate-900 border border-slate-800 p-8 rounded-3xl h-full shadow-2xl transition-all">
+                    <div id="welcome-msg">
+                        <div class="w-12 h-12 bg-sky-500/10 rounded-xl flex items-center justify-center text-sky-500 mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" /></svg>
+                        </div>
+                        <h2 class="text-2xl font-bold mb-4">Panel de Control</h2>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-4">Selecciona una sección del motor en el diagrama para ver su función técnica.</p>
+                        <ul class="text-xs text-slate-500 space-y-2 mono uppercase">
+                            <li>• Desglose en tiempo real</li>
+                            <li>• Datos termodinámicos</li>
+                            <li>• Notas de ingeniería</li>
+                        </ul>
+                    </div>
+
+                    <div id="detail-view" class="hidden">
+                        <div class="flex justify-between items-center mb-6">
+                            <span id="part-id" class="bg-sky-500 text-slate-900 font-black px-3 py-1 rounded text-sm mono">00</span>
+                            <span class="text-[10px] text-emerald-500 font-bold mono uppercase">Online</span>
+                        </div>
+                        <h2 id="part-name" class="text-3xl font-black mb-4 uppercase tracking-tighter">Parte</h2>
+                        <p id="part-desc" class="text-slate-400 text-sm leading-relaxed mb-6">Descripción.</p>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <span class="block text-[10px] text-slate-500 mono uppercase mb-1">Métrica Clave</span>
+                                <span id="part-stat" class="text-lg font-bold text-sky-400 tracking-tight">--</span>
+                            </div>
+                            <div class="bg-sky-500/5 p-4 rounded-xl border border-sky-500/20">
+                                <p id="part-note" class="text-xs text-sky-200/60 italic leading-snug"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const engineData = {
+            fan: {
+                id: '01',
+                name: 'Ventilador Frontal',
+                desc: 'El primer contacto con el aire. Proporciona el empuje de bypass, que es aire frío que envuelve al motor y genera la mayor parte de la fuerza de propulsión de manera eficiente.',
+                stat: 'Bypass Ratio: 10:1',
+                note: 'Las aspas suelen estar hechas de titanio o materiales compuestos reforzados.'
+            },
+            compressor: {
+                id: '02',
+                name: 'Compresor de Núcleo',
+                desc: 'Eleva la presión del aire cientos de veces antes de la combustión. Utiliza múltiples etapas de aspas rotativas y estáticas.',
+                stat: 'Presión: 450 PSI',
+                note: 'A medida que el aire se comprime, su temperatura aumenta naturalmente por la fricción y presión.'
+            },
+            combustor: {
+                id: '03',
+                name: 'Cámara de Combustión',
+                desc: 'Donde el aire se mezcla con combustible Jet-A y se quema continuamente. Es el punto de mayor energía del motor.',
+                stat: 'Temp: 1,800°C',
+                note: 'El recubrimiento cerámico evita que la cámara se derrita bajo el calor extremo.'
+            },
+            turbine: {
+                id: '04',
+                name: 'Sección de Turbinas',
+                desc: 'Captura la energía de los gases calientes para hacer girar el ventilador y el compresor mediante ejes internos.',
+                stat: 'RPM: 12,500',
+                note: 'Es la parte más estresada mecánicamente de todo el motor de reacción.'
+            },
+            nozzle: {
+                id: '05',
+                name: 'Escape / Tobera',
+                desc: 'Acelera los gases de escape hacia atrás para crear el empuje final según la tercera ley de Newton.',
+                stat: 'Empuje: 70,000 lbf',
+                note: 'La forma de la tobera determina el perfil de ruido del motor durante el despegue.'
+            }
+        };
+
+        let isExploded = false;
+
+        function toggleExplosion() {
+            const svg = document.getElementById('engine-svg');
+            const btn = document.getElementById('main-btn');
+            isExploded = !isExploded;
+            
+            if(isExploded) {
+                svg.classList.add('exploded');
+                btn.innerText = "Ensamblar Motor";
+                btn.classList.replace('bg-sky-600', 'bg-slate-700');
+            } else {
+                svg.classList.remove('exploded');
+                btn.innerText = "Descomponer Motor";
+                btn.classList.replace('bg-slate-700', 'bg-sky-600');
+            }
+        }
+
+        function updateDetail(key, element) {
+            const data = engineData[key];
+            document.getElementById('welcome-msg').classList.add('hidden');
+            const view = document.getElementById('detail-view');
+            view.classList.remove('hidden');
+
+            // Actualizar textos
+            document.getElementById('part-id').innerText = data.id;
+            document.getElementById('part-name').innerText = data.name;
+            document.getElementById('part-desc').innerText = data.desc;
+            document.getElementById('part-stat').innerText = data.stat;
+            document.getElementById('part-note').innerText = data.note;
+
+            // Highlight visual
+            document.querySelectorAll('.engine-part').forEach(p => p.classList.remove('active-part'));
+            element.classList.add('active-part');
+        }
+    </script>
+</body>
+</html>
